@@ -36,38 +36,71 @@ function Vans() {
     });
 
 
+    function handleFilterChange(key, value) {
+        // Similar to useState, but this one you can change the value directly
+        setSearchParams( prevSearchParams => {
+            if(value === null) {
+                prevSearchParams.delete(key);
+
+            } else {
+                prevSearchParams.set(key, value);
+            }
+
+            return prevSearchParams;
+        });
+    }
+
+    // // In JavaScript
+    // function genNewSearchParamString(key, value) {
+    //     const sp = new URLSearchParams(searchParams);
+
+    //     if(value === null) {
+    //         sp.delete(key);
+
+    //     } else {
+    //         sp.set(key, value);
+    //     }
+
+    //     return `?${sp.toString()}`;
+    // }
+    // <Link to={genNewSearchParamString("type", "jedi")}>Jedi</Link>
+
     return (
         <div className='van-list-container'>
             <h1>Explore our van options</h1>
 
             <div className='van-list-filter-buttons'>
                 <button
-                    className='van-type simple'
-                    onClick={ () => setSearchParams({type: 'simple'}) }
+                    className={`van-type simple ${typeFilter === 'simple' ? 'selected' : ''}`}
+                    onClick={ () => handleFilterChange('type', 'simple') }
                 >
                     Simple
                 </button>
 
                 <button
-                    className='van-type luxury'
-                    onClick={ () => setSearchParams({type: 'luxury'}) }
+                    className={`van-type luxury ${typeFilter === 'luxury' ? 'selected' : ''}`}
+                    onClick={ () => handleFilterChange('type', 'luxury') }
                 >
                     Luxury
                 </button>
 
                 <button
-                    className='van-type rugged'
-                    onClick={ () => setSearchParams({type: 'rugged'}) }
+                    className={`van-type rugged ${typeFilter === 'rugged' ? 'selected' : ''}`}
+                    onClick={ () => handleFilterChange('type', 'rugged') }
                 >
                     Rugged
                 </button>
 
-                <button
-                    className='van-type clear-filters'
-                    onClick={ () => setSearchParams({}) }
-                >
-                    Clear filter
-                </button>
+                {
+                    typeFilter && (
+                        <button
+                            className='van-type clear-filters'
+                            onClick={ () => handleFilterChange('type', null) }
+                        >
+                            Clear filter
+                        </button>
+                    )
+                }
             </div>
             
             <div className='van-list'>
