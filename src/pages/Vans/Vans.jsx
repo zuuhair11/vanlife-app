@@ -1,19 +1,32 @@
 import { useState, useEffect } from 'react' ;
 import { Link, useSearchParams } from 'react-router-dom' ;
+import { getVans } from '../../api' ;
 
 
 function Vans() {
     const [vans, setVans] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const typeFilter = searchParams.get('type');
-    console.log(typeFilter);
 
     useEffect( () => {
-        fetch('/api/vans')
-            .then( response => response.json() )
-            .then( data => setVans(data.vans) )
+        async function loadVans() {
+            setLoading(true);
+            try {
+                const data = await getVans();
+                setVans(data);
 
+            } catch(err) {
+                setError(err);
+
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadVans();
+        
     }, []);
 
     const displayedVans = typeFilter 
@@ -23,7 +36,13 @@ function Vans() {
     const vanElements = displayedVans.map( van => {
         return (
             <div key={ van.id } className='van-tile'>
-                <Link to={`/vans/${van.id}`} >
+                <Link 
+                    to={`${van.id}`} 
+                    state={{
+                        search: `?${searchParams.toString()}`,
+                        type: typeFilter
+                    }}
+                >
                     <img src={ van.imageUrl } alt='' />
                     <div className='van-info'>
                         <h3>{ van.name }</h3>
@@ -64,6 +83,15 @@ function Vans() {
     //     return `?${sp.toString()}`;
     // }
     // <Link to={genNewSearchParamString("type", "jedi")}>Jedi</Link>
+
+    if(loading) {
+        return <h1>Loading...</h1>;
+    }
+
+    if(error) {
+        return <h1>There was an error: { error.message }</h1>
+    }
+
 
     return (
         <div className='van-list-container'>
